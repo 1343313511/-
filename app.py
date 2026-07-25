@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, url_for, abort,\
+from flask import Flask, render_template, render_template_string, request, redirect, session, url_for, abort,\
     make_response, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
@@ -351,6 +351,18 @@ def safe_fetch_url(url):
         return False, "请求超时", None
     except Exception as e:
         return False, f"请求异常: {str(e)}", None
+
+
+# SSTI 防护：HTML 转义函数
+# 用于 render_template_string 拼接场景，防止用户输入中的 Jinja2 模板语法被执行
+
+
+def safe_str(value):
+    """
+    安全转义用户输入，防止 SSTI 攻击。
+    将 < > & " ' 等特殊字符转义为 HTML 实体。
+    """
+    return _html.escape(str(value), quote=True)
 
 
 @app.context_processor
@@ -856,35 +868,41 @@ def dynamic_page():
     """
     动态页面加载 - 从 pages/ 目录加载页面内容
     对 name 参数做安全处理，防止路径穿越
+    
+    ✅ SSTI 修复：page_content 通过 render_template 传递为普通字符串变量，
+    不会作为模板解析。但为防止 pages 文件内容包含 Jinja2 语法被渲染，
+    使用 render_template_string 传入转义后的内容。
     """
     name = request.args.get("name", "")
     
     if not name:
-        page_content = "请指定页面名称，例如 /page?name=help"
+        raw_content = "请指定页面名称，例如 /page?name=help"
     else:
         # 安全处理：仅提取文件名部分，去除路径分隔符和 .. 穿越
         safe_name = os.path.basename(name)
         if not safe_name:
-            page_content = "页面不存在"
+            raw_content = "页面不存在"
         else:
             pages_dir = os.path.join(app.root_path, "pages")
             page_path = os.path.normpath(os.path.join(pages_dir, safe_name))
             
             # 确保文件在 pages/ 目录内
             if not page_path.startswith(os.path.normpath(pages_dir) + os.sep):
-                page_content = "页面不存在"
+                raw_content = "页面不存在"
             elif os.path.isfile(page_path):
                 with open(page_path, "r", encoding="utf-8") as f:
-                    page_content = f.read()
+                    raw_content = f.read()
             else:
                 # 尝试加上 .html 后缀
                 page_path_html = page_path + ".html"
                 if os.path.isfile(page_path_html):
                     with open(page_path_html, "r", encoding="utf-8") as f:
-                        page_content = f.read()
+                        raw_content = f.read()
                 else:
-                    page_content = "页面不存在"
+                    raw_content = "页面不存在"
     
+    # ✅ SSTI 修复：对页面内容做 HTML 转义，防止 pages 中的 Jinja2 语法被执行
+    page_content = _html.escape(raw_content)
     username = session.get("username")
     user = get_user_info(username) if username else None
     return render_template("index.html", user=user, page_content=page_content)
@@ -975,6 +993,137 @@ def change_password():
     
     # 重定向回 profile，尽可能带上 user_id 参数
     return redirect(url_for("profile", user_id=request.form.get("user_id", "")))
+
+
+@app.route("/welcome")
+def welcome():
+    """
+    欢迎页
+    
+    ❌ 漏洞（修复前）：
+        render_template_string(f"<h1>欢迎你，{name}！</h1>")
+        用户输入直接拼接为模板字符串，攻击者可注入 {{config}} 等 SSTI payload
+    
+    ✅ 修复方案：对用户输入进行 HTML 转义后再拼接，防止 Jinja2 模板语法注入
+    """
+    name = request.args.get("name", "")
+    if not name:
+        display_name = "亲爱的用户，欢迎你！"
+    else:
+        # ✅ SSTI 修复：转义用户输入后拼接，防御 Jinja2 模板注入
+        display_name = safe_str(name)
+    
+    content = f"""<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>欢迎页</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">用户管理系统</div>
+        <div class="navbar-menu">
+            <a class="navbar-item" href="/welcome">欢迎页</a>
+            <a class="navbar-item" href="/feedback">反馈</a>
+            <a class="navbar-item" href="/login">登录</a>
+            <a class="navbar-item" href="/register">注册</a>
+        </div>
+    </nav>
+    <main class="container">
+        <div class="card">
+            <h1>欢迎你，{display_name}！</h1>
+        </div>
+    </main>
+</body>
+</html>"""
+    return render_template_string(content)
+
+
+@app.route("/feedback", methods=["GET", "POST"])
+def feedback():
+    """
+    反馈页
+    
+    ❌ 漏洞（修复前）：
+        render_template_string(f"<h2>{name} 的反馈：</h2><p>{message}</p>")
+        name 和 message 直接拼接为模板字符串，存在 SSTI 风险
+    
+    ✅ 修复方案：对用户输入进行 HTML 转义后再拼接
+    """
+    if request.method == "POST":
+        name = request.form.get("name", "")
+        message = request.form.get("message", "")
+        # ✅ SSTI 修复：转义用户输入后拼接
+        safe_name = safe_str(name)
+        safe_message = safe_str(message)
+        result = f"""<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>反馈结果</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">用户管理系统</div>
+        <div class="navbar-menu">
+            <a class="navbar-item" href="/welcome">欢迎页</a>
+            <a class="navbar-item" href="/feedback">反馈</a>
+            <a class="navbar-item" href="/login">登录</a>
+            <a class="navbar-item" href="/register">注册</a>
+        </div>
+    </nav>
+    <main class="container">
+        <div class="card">
+            <h2>{safe_name} 的反馈：</h2>
+            <p>{safe_message}</p>
+        </div>
+    </main>
+</body>
+</html>"""
+        return render_template_string(result)
+
+    # GET 请求：显示反馈表单
+    form_html = """<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户反馈</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">用户管理系统</div>
+        <div class="navbar-menu">
+            <a class="navbar-item" href="/welcome">欢迎页</a>
+            <a class="navbar-item" href="/feedback">反馈</a>
+            <a class="navbar-item" href="/login">登录</a>
+            <a class="navbar-item" href="/register">注册</a>
+        </div>
+    </nav>
+    <main class="container">
+        <div class="card">
+            <h2>用户反馈</h2>
+            <form method="post" action="/feedback">
+                <div class="form-group">
+                    <label for="name">姓名</label>
+                    <input type="text" id="name" name="name" placeholder="请输入您的姓名" required>
+                </div>
+                <div class="form-group">
+                    <label for="message">留言</label>
+                    <textarea id="message" name="message" rows="5" placeholder="请输入您的反馈内容" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">提交反馈</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>"""
+    return render_template_string(form_html)
 
 
 @app.route("/logout")
