@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Ping 网络诊断</h2>
+    <p>输入目标 IP 地址或域名，执行 ping 测试。</p>
+
+    <form method="post" action="/ping" class="ping-form">
+        <div class="form-group search-group">
+            <input type="text" id="ip" name="ip" placeholder="输入 IP 或域名，如 8.8.8.8" value="{{ ip or '' }}" required>
+            <button type="submit" class="btn btn-primary">Ping</button>
+        </div>
+    </form>
+
+    {% if error %}
+    <div class="flash-message flash-error">{{ error }}</div>
+    {% endif %}
+
+    {% if result is not none %}
+    <hr class="divider">
+    <h3>Ping 结果</h3>
+    <pre class="ping-output">{{ result }}</pre>
+    {% endif %}
+</div>
+
+<style>
+.ping-form {
+    margin: 15px 0;
+}
+.ping-output {
+    background-color: #000;
+    color: #00ff00;
+    font-family: "Courier New", Consolas, monospace;
+    font-size: 13px;
+    padding: 15px;
+    border-radius: 4px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.5;
+    max-height: 500px;
+    overflow-y: auto;
+}
+</style>
+{% endblock %}

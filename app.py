@@ -18,6 +18,8 @@ from contextlib import contextmanager
 import urllib.request
 import urllib.parse
 import urllib.error
+import subprocess
+import platform
 
 try:
     from PIL import Image, ImageDraw, ImageFont
@@ -1124,6 +1126,82 @@ def feedback():
 </body>
 </html>"""
     return render_template_string(form_html)
+
+
+def _validate_ip_or_domain(value):
+    """
+    校验输入是否为合法的 IPv4 地址或域名，防止命令注入。
+    返回: (is_valid: bool, error_msg: str or None)
+    """
+    if not value:
+        return False, "IP 地址或域名不能为空"
+    if len(value) > 255:
+        return False, "输入长度超过限制"
+
+    # 检查是否包含危险字符（仅允许字母、数字、点、短横线）
+    # 合法字符：a-z A-Z 0-9 . -
+    allowed = _re.compile(r'^[a-zA-Z0-9.\-]+$')
+    if not allowed.match(value):
+        return False, "输入包含非法字符，只允许字母、数字、点(.)和短横线(-)"
+
+    # 禁止明显的危险 payload
+    value_lower = value.lower()
+    dangerous = ["|", ";", "&", "`", "$", "(", ")", "{", "}", "\n", "\r", "\t",
+                 "rm", "mkfs", "dd", "shutdown", "reboot", "wget", "curl",
+                 "bash", "sh", "python", "perl", "ruby", "nc -", "ncat",
+                 "/etc/", "/passwd", "/bin/", "/dev/"]
+    for pattern in dangerous:
+        if pattern in value_lower:
+            return False, f"输入包含禁止的关键词: {pattern}"
+
+    # IPv4 格式校验（如果看起来像 IP）
+    if '.' in value:
+        # 检查是否每段都是数字
+        parts = value.split('.')
+        if all(p.isdigit() for p in parts):
+            # 看起来是 IP 地址，严格校验
+            try:
+                ipaddress.IPv4Address(value)
+            except ipaddress.AddressValueError:
+                return False, "无效的 IPv4 地址格式"
+        # 否则是域名，不做 IP 格式校验
+
+    return True, None
+
+
+@app.route("/ping", methods=["GET", "POST"])
+@login_required()
+def ping():
+    """Ping 网络诊断 - GET 显示页面，POST 执行 ping 命令"""
+    result = None
+    ip = None
+    error = None
+    if request.method == "POST":
+        ip = request.form.get("ip", "").strip()
+        # ✅ 修复命令注入：先校验输入合法性
+        is_valid, err_msg = _validate_ip_or_domain(ip)
+        if not is_valid:
+            error = err_msg
+        elif ip:
+            # ✅ 修复：使用参数列表形式，不使用 shell=True，防止命令注入
+            # ✅ 修复：不通过字符串拼接构建命令
+            cmd = ["ping", "-c", "3", ip]
+            print(f"[PING] 执行: {' '.join(cmd)}")
+            try:
+                output = subprocess.check_output(
+                    cmd,
+                    timeout=30,
+                    stderr=subprocess.STDOUT
+                )
+                result = output.decode("utf-8", errors="replace")
+            except subprocess.TimeoutExpired:
+                result = "Ping 超时（30 秒）\n"
+            except subprocess.CalledProcessError as e:
+                out = e.output.decode("utf-8", errors="replace") if e.output else ""
+                result = out or f"Ping 执行失败，返回码: {e.returncode}\n"
+            except Exception as e:
+                result = f"执行异常: {str(e)}\n"
+    return render_template("ping.html", result=result, ip=ip, error=error)
 
 
 @app.route("/logout")
