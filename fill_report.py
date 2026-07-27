@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""将实训内容填入学校实习报告模板"""
+"""仅填充实习主要内容和实习总结，其他内容原封不动"""
 
 from docx import Document
-from docx.shared import Pt, Cm
-import os
+from docx.shared import Pt
 
 template_path = '/root/.openclaw/media/qqbot/downloads/1905229424/17911036127897E831347AF9570D93DF/0bfb8723-348a-4af9-898c-71e71ea272d8.docx'
 output_path = '/opt/Class01/项目/网络安全实践-2实习报告-王宇杨.docx'
@@ -13,7 +12,7 @@ doc = Document(template_path)
 table = doc.tables[0]
 cell = table.rows[0].cells[0]
 
-# ============ 实习主要内容（P7-P25） ============
+# ============ 实习主要内容（P7-P25, 共19个空段落） ============
 main_lines = [
     "本次实训以 Kali Linux 为操作平台，以一个完整的 Flask Web 用户管理系统为靶标项目，从攻防双视角系统性地开展了为期九天的安全实训。实训覆盖了 OWASP Top 10 中绝大部分核心漏洞类型及渗透测试进阶技术。具体内容如下：",
     "",
@@ -40,13 +39,9 @@ main_lines = [
     "11. Shell 反弹与 Linux 利用手法：掌握 bash / nc / Python / PHP 等多种反向 Shell 的构造方式；编写 PHP 一句话木马结合反向 Shell 实现 WebShell 管理；学习 SUID 提权、计划任务利用、sudo 配置错误等 Linux 系统层面攻击手法；配置 NPS 内网穿透客户端实现外网访问内网服务；针对 SQLi-LABS 靶场开展 WAF 绕过模糊测试。",
 ]
 
-# 填入 P7-P25
 for i, text in enumerate(main_lines):
     idx = 7 + i
-    if idx >= len(cell.paragraphs):
-        break
     p = cell.paragraphs[idx]
-    # 清空原有内容
     for run in list(p.runs):
         run.text = ''
     if text:
@@ -54,20 +49,17 @@ for i, text in enumerate(main_lines):
         run.font.size = Pt(12)
         run.font.name = '宋体'
 
-# ============ 实习总结（P27开始） ============
+# ============ 实习总结（P27-P63, 共37个空段落） ============
 summary_lines = [
     "通过本次为期九天的网络安全实训，我系统性地构建了 Web 安全的知识体系，从最初仅了解漏洞概念，到能够独立分析漏洞原理、编写攻击载荷、完成修复方案并输出专业漏洞报告，全过程覆盖了 SQL 注入、越权、CSRF、文件上传绕过、文件包含、XSS、SSRF、SSTI、命令注入等 OWASP Top 10 核心漏洞类型。",
     "在工具使用方面，熟练掌握了 Kali Linux 操作系统环境、Burp Suite 进行 HTTP 流量分析与字典攻击、OpenClaw AI Agent 辅助漏洞分析与报告生成、Git 进行版本管理与协同开发等安全从业人员必备技能。",
     "本次实训的一大特色是将 AI Agent 深度集成到安全工作流中。AI 不仅辅助完成了漏洞分析、修复代码编写和报告文档的自动生成，还通过自动化工具有条理地管理项目文件、执行 Git 操作，极大提升了工作效率。这让我深刻认识到 AI 在安全领域的应用前景——AI 不会替代安全工程师，但能大幅提升安全工作的效率和质量。",
-    '实训最大的收获是安全思维的建立。Web 应用的安全性由每一个输入点、每一个输出点、每一条数据库查询、每一次系统调用共同决定。安全不是靠单个功能实现的，它需要渗透到开发的全生命周期。九天的修复历程展示了安全是一个持续的、迭代的过程，这种持续安全的理念将贯穿我未来的职业生涯。',
+    "实训最大的收获是安全思维的建立。Web 应用的安全性由每一个输入点、每一个输出点、每一条数据库查询、每一次系统调用共同决定。安全不是靠单个功能实现的，它需要渗透到开发的全生命周期。九天的修复历程展示了安全是一个持续的、迭代的过程，这种持续安全的理念将贯穿我未来的职业生涯。",
     "本次实训共完成 20 次 Git 提交，生成 8 份独立漏洞修复报告（Word 格式），累计修复 9 大类安全漏洞，实现了从初始版本到全面安全加固的完整演进。项目代码及全部文档已推送至 GitHub 仓库存档。",
 ]
 
-# 填入 P27 及后续段落
 for i, text in enumerate(summary_lines):
     idx = 27 + i
-    if idx >= len(cell.paragraphs):
-        break
     p = cell.paragraphs[idx]
     for run in list(p.runs):
         run.text = ''
@@ -77,4 +69,4 @@ for i, text in enumerate(summary_lines):
         run.font.name = '宋体'
 
 doc.save(output_path)
-print(f'✅ 实习报告已生成: {output_path}')
+print(f'✅ 完成: {output_path}')
